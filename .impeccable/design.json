@@ -551,7 +551,7 @@
       "kind": "custom",
       "refersTo": "notice",
       "description": "The failure banner, with a command the user can select in one click.",
-      "html": "<div class=\"ds-notice\" role=\"alert\"><h2>Scanning needs administrator rights</h2><p>Quit this window and start the app from its folder with:</p><code>sudo .venv/bin/python main.py</code></div>",
+      "html": "<div class=\"ds-notice\" role=\"alert\"><h2>The scan failed</h2><p>Check Wi-Fi or Ethernet, then scan again.</p></div>",
       "css": ".ds-notice { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; padding: 12px 16px; border: 1px solid var(--rose-200); border-radius: 14px; background: var(--rose-50); color: var(--rose-700); font-size: 13px; line-height: 1.45; } .ds-notice h2 { margin: 0 0 4px; font-size: 14px; font-weight: 600; letter-spacing: -0.02em; } .ds-notice p { margin: 0; } .ds-notice code { display: block; margin-top: 8px; padding: 6px 10px; border: 1px solid var(--rose-200); border-radius: 8px; background: #fff; color: var(--slate-900); font: inherit; font-size: 12px; user-select: all; }"
     },
     {

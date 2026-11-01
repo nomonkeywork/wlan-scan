@@ -34,6 +34,11 @@ typography:
     fontWeight: 600
     lineHeight: 1.45
     letterSpacing: "-0.02em"
+  reading:
+    fontFamily: "JetBrains Mono, ui-monospace, Menlo, monospace"
+    fontSize: "40px"
+    fontWeight: 600
+    lineHeight: 1.1
   title:
     fontFamily: "JetBrains Mono, ui-monospace, Menlo, monospace"
     fontSize: "16px"
@@ -185,6 +190,16 @@ components:
     typography: "{typography.label}"
     padding: "0 12px"
     height: "36px"
+  speed-button:
+    backgroundColor: "{colors.white}"
+    textColor: "{colors.slate-900}"
+    typography: "{typography.headline}"
+    rounded: "{rounded.xl}"
+    padding: "8px"
+    height: "72px"
+  speed-button-busy:
+    backgroundColor: "{colors.indigo-50}"
+    textColor: "{colors.indigo-700}"
 ---
 
 # Design System: Freds LAN
@@ -211,10 +226,10 @@ The system refuses a themed costume of any kind. The 3D map earns its place by s
 Tailwind's slate and indigo, with sky and emerald for device roles and amber and rose for state.
 
 ### Primary
-- **Working Indigo** (#4f46e5): The Scan button, the router on the map, the scan arc, the link to the selected device, checkmarks and sort arrows. The hover and pressed-text partner is **Deep Indigo** (#4338ca).
-- **Focus Periwinkle** (#a5b4fc): The border of a focused or open control.
+- **Working Indigo** (#4f46e5): The Scan button, the router on the map, the scan arc, the speed gauge's arc, the link to the selected device, checkmarks and sort arrows. The hover and pressed-text partner is **Deep Indigo** (#4338ca).
+- **Focus Periwinkle** (#a5b4fc): The border of a focused or open control, and the speed test's trace line.
 - **Focus Halo** (#e0e7ff): The 4px ring around a focused or open control, and the text selection background.
-- **Selection Wash** (#eef2ff): The fill of whatever is currently selected: a pressed segment, the current device row, a selected table row, a selected map chip.
+- **Selection Wash** (#eef2ff): The fill of whatever is currently selected or running: a pressed segment, the current device row, a selected table row, a selected map chip, the speed test being measured.
 
 ### Secondary
 - **Access Point Sky** (#0ea5e9): Devices with the access point role, on the map and as list and legend dots.
@@ -226,7 +241,7 @@ Tailwind's slate and indigo, with sky and emerald for device roles and amber and
 
 ### Neutral
 - **Page Slate** (#f8fafc): The page behind the cards, and button and table-header hover.
-- **Map Slate** (#f1f5f9): The map card's ground, list and option hover, and table row rules.
+- **Map Slate** (#f1f5f9): The map card's ground, list and option hover, table row rules, and the speed gauge's empty track.
 - **Card White** (#ffffff): Toolbar, cards, inputs, buttons, chips and the map's disc.
 - **Hairline** (#e2e8f0): Every resting border, and the disc's rim.
 - **Strong Hairline** (#cbd5e1): Border on hover, scrollbars, the drop lines under devices on the map.
@@ -240,7 +255,7 @@ Tailwind's slate and indigo, with sky and emerald for device roles and amber and
 - **Logo Violet** (#7c3aed): The smiling monkey mark, taken from the fill of `assets/monkey-purple.svg`. The app icon, `assets/AppIcon.png` with its `assets/AppIcon.icns` build, sets this mark in violet on a white rounded square. It identifies the app in the Dock, the menu bar and the app bundle, and does not appear inside the window.
 
 ### Named Rules
-**The Indigo Earns It Rule.** Indigo appears only on the primary action, on focus, on selection and on the router and scan. If nothing is being acted on or chosen, it is not indigo.
+**The Indigo Earns It Rule.** Indigo appears only on the primary action, on focus, on selection, on the router and scan, and on a live measurement. If nothing is being acted on or chosen, it is not indigo.
 
 **The State Colour Rule.** Amber says a device is new. Rose says something failed or does not answer. Neither is ever decoration.
 
@@ -255,7 +270,8 @@ Tailwind's slate and indigo, with sky and emerald for device roles and amber and
 **Character:** One variable monospace face, loaded from local files, carries the app name, the prose and the addresses alike. Hierarchy comes from small steps in size and weight, and from colour.
 
 ### Hierarchy
-- **Headline** (600, 18px, 1.45, -0.02em): The app name in the toolbar.
+- **Reading** (600, 40px, 1.1): The live number in the speed gauge, the only text this large, with tabular numerals so it doesn't jitter.
+- **Headline** (600, 18px, 1.45, -0.02em): The app name in the toolbar, and the last result on a speed test button.
 - **Title** (600, 16px, 1.45, -0.02em): The heading of the device list.
 - **Title Small** (600, 14px): Notice headings and the router's name on the map.
 - **Body** (400, 13px, 1.45): Base text, inputs, options and the detail panel's empty state.
@@ -272,9 +288,9 @@ Tailwind's slate and indigo, with sky and emerald for device roles and amber and
 
 ## Layout
 
-The window is a fixed-height column that does not scroll. A white toolbar (10px vertical and 16px horizontal padding, 10px gap) holds the app name, the network pulldown, Scan, Export and the Map/Table switch, with the status line taking the remaining width, right-aligned and truncated.
+The window is a fixed-height column that does not scroll. A white toolbar (10px vertical and 16px horizontal padding, 10px gap) holds the app name, the network pulldown, Scan, Export and the Map/Table/Speedtest/WLAN switch, with the status line taking the remaining width, right-aligned and truncated.
 
-Below it, the workspace has 16px padding and a 16px gap. The map or the table flexes to fill the left, and a fixed 340px panel holds the device list above the details. The map and the table occupy the same slot, never side by side. In the table view the list gives way: the panel appears only once a device is selected, and its details fill it.
+Below it, the workspace has 16px padding and a 16px gap. The map or the table flexes to fill the left, and a fixed 340px panel holds the device list above the details. All four views occupy the same slot, never side by side. In the table view the list gives way: the panel appears only once a device is selected, and its details fill it. Speedtest and WLAN are not about one device, so they have no panel and fill the whole workspace.
 
 Spacing moves in small steps from 4 to 16px: 4 to 6px inside a line or between a label and its field, 8 to 12px between controls, 14 to 16px for card padding. Each scrolling region scrolls itself with a thin slate scrollbar. Below a 1100px window width the map's drag hint drops out and the legend stays. Past 14 devices the map's chips drop the address line, and an unnamed device shows its last octet.
 
@@ -293,7 +309,7 @@ A hybrid in which borders do the structural work. Cards and standalone controls 
 
 ## Shapes
 
-Soft, rounded rectangles on ffa's scale, which derives from a 10px base. Containers are rounder than what they hold: cards at 18px, then fields, the pulldown, the view switch and notices at 14px, buttons, segments and list rows at 10px, chips and code blocks at 8px, and the "New" mark and small icon buttons at 6px. Dots are full circles at 10px. Icons are 16px stroked outlines (14px in dense spots) with round caps and joins, stroke width 2 on a 24-unit grid, drawn inline.
+Soft, rounded rectangles on ffa's scale, which derives from a 10px base. Containers are rounder than what they hold: cards at 18px, then fields, the pulldown, the view switch and notices at 14px, buttons, segments and list rows at 10px, chips at 8px, and the "New" mark and small icon buttons at 6px. Dots are full circles at 10px. Icons are 16px stroked outlines (14px in dense spots) with round caps and joins, stroke width 2 on a 24-unit grid, drawn inline.
 
 ### Named Rules
 **The Nested Radius Rule.** A control is never rounder than the container that holds it.
@@ -310,7 +326,7 @@ Plain and confident, with a single filled button in the window.
 - **Icon button:** A borderless 24px square with a 6px radius and a 14px icon, used to open a device's page. Hover is Selection Wash with Deep Indigo.
 
 ### Segmented Switch
-A white 14px pill with a Hairline border and 3px padding, holding 28px borderless segments at 10px radius. Pressed is Selection Wash with Deep Indigo, and hover on the others is Map Slate. It switches between Map and Table, and sets a device's role in the detail panel, where it stretches to the full width at 12px text.
+A white 14px pill with a Hairline border and 3px padding, holding 28px borderless segments at 10px radius. Pressed is Selection Wash with Deep Indigo, and hover on the others is Map Slate. It switches between Map, Table, Speedtest and WLAN, and sets a device's role in the detail panel, where it stretches to the full width at 12px text.
 
 ### Pulldown
 The network selector, a custom listbox. The trigger is 232px wide at 14px radius, with a Line Slate chevron that turns 180 degrees over 150ms when open and keeps the focus treatment while open. The menu sits 6px below at the same width and radius, with the Menu shadow, up to 320px tall. Options have 8px and 14px padding, the active one on Map Slate with Ink, the selected one in medium-weight Deep Indigo with a check at the right.
@@ -337,10 +353,20 @@ White 8px labels with a Hairline border and the Chip shadow, up to 190px wide, t
 A small amber tag (6px radius, 6px side padding, 12px medium text) that stays on a device until it is clicked, in both the list and the map.
 
 ### Notice
-A full-width rose banner under the toolbar (14px radius, 12px and 16px padding) with a 14px heading. A command the user needs to run sits in a white 8px block, selectable in one click.
+A full-width rose banner under the toolbar (14px radius, 12px and 16px padding) with a 14px heading.
 
 ### Device Table
 A dense sortable table on a card: a sticky 38px header in Soft Ink at 12px weight 600, 36px rows divided by Map Slate lines, and a sticky first column separated by a 1px Hairline. Hover is Page Slate, the selected row is Selection Wash with its name in Deep Indigo. The sort column shows a 14px indigo arrow. Ping is a 10px dot, hollow when a device doesn't answer, emerald for an answer, Ping Rose for none and Strong Hairline for unknown.
+
+### Speed Test
+A card with its content centred, reading from the top: gauge, trace, three buttons, status line. The gauge is a 300px half ring, a 14px round-capped Working Indigo arc over a Map Slate track, with the live number and its unit in the middle and the scale's 0 and maximum in Quiet Ink under the ends. The scale steps up as the speed passes it (10, 25, 50, 100, 250 and on for speed; 50, 100, 200 and on for ping). The trace beneath is a 60px, 640px-wide Focus Periwinkle line on a Hairline base, redrawn over the same scale, and it stays after the test ends.
+
+Downstream, Upstream and Ping are default-styled buttons at 72px and 14px radius, each with a 12px Soft Ink label over its last result in Headline. Each starts its own test. While one runs it takes Selection Wash, a Working Indigo border and Deep Indigo text, and the other two are disabled. The status line is 12px Soft Ink, and Alarm Rose when a test fails.
+
+The number and arc ease towards each new reading, which arrives about four times a second. With reduced motion they jump straight to it. The final figure always reads exactly.
+
+### WLAN List
+The Device Table's styling on a card, with a head row holding a 12px status line and a default Refresh button. Columns are network, signal, band, channel, security and status, strongest signal first. Rows are not selectable, so they have the hover but no pointer cursor. Status reads Connected, Known or nothing. macOS hides network names until the app may use Location, so a hidden name reads "Name hidden" and the status line says how to allow it.
 
 ### Network Map
 The signature component. A white disc with real thickness rests in the map card, with the router above its centre as an indigo sphere and ring. Faint Line Slate rings and spokes divide the disc, and the rim reads in last IP octets, numbered every 32. Devices are small role-coloured spheres on thin drop lines, holding a stable bearing from their address as others join, with extra addresses shown as smaller linked points. Selecting a device draws an indigo ring around it and an indigo curve back to the router.
@@ -354,7 +380,7 @@ During a scan an indigo arc turns over the disc (2.4 seconds per turn). Each dev
 - **Do** mark selection the same way everywhere: Selection Wash (#eef2ff) with Deep Indigo (#4338ca) text.
 - **Do** give every focusable control the Focus Periwinkle border and 4px Focus Halo.
 - **Do** write labels in sentence case, and keep guessed names in the lighter style.
-- **Do** bundle every font and asset locally; the app must work offline.
+- **Do** bundle every font and asset locally; everything except the speed test must work offline.
 - **Do** use `assets/AppIcon.png` for the app's icon as supplied, and `assets/monkey-purple.svg` as the source of the mark.
 - **Do** let position, height and colour on the map state real facts from the scan.
 
