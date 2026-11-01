@@ -1,0 +1,4 @@
+scapy==2.8.0
+mac-vendor-lookup==0.1.15
+netifaces==0.11.0
+pywebview==6.2.1

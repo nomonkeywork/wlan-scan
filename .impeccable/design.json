@@ -1,0 +1,636 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-01T09:18:54Z",
+  "title": "Design System: LAN Scanner",
+  "extensions": {
+    "colorMeta": {
+      "indigo-600": {
+        "role": "primary",
+        "displayName": "Working Indigo",
+        "canonical": "#4f46e5",
+        "tonalRamp": [
+          "#312e81",
+          "#3730a3",
+          "#4338ca",
+          "#4f46e5",
+          "#6366f1",
+          "#a5b4fc",
+          "#e0e7ff",
+          "#eef2ff"
+        ]
+      },
+      "indigo-700": {
+        "role": "primary",
+        "displayName": "Deep Indigo",
+        "canonical": "#4338ca",
+        "tonalRamp": [
+          "#312e81",
+          "#3730a3",
+          "#4338ca",
+          "#4f46e5",
+          "#6366f1",
+          "#a5b4fc",
+          "#e0e7ff",
+          "#eef2ff"
+        ]
+      },
+      "indigo-300": {
+        "role": "primary",
+        "displayName": "Focus Periwinkle",
+        "canonical": "#a5b4fc",
+        "tonalRamp": [
+          "#312e81",
+          "#3730a3",
+          "#4338ca",
+          "#4f46e5",
+          "#6366f1",
+          "#a5b4fc",
+          "#e0e7ff",
+          "#eef2ff"
+        ]
+      },
+      "indigo-100": {
+        "role": "primary",
+        "displayName": "Focus Halo",
+        "canonical": "#e0e7ff",
+        "tonalRamp": [
+          "#312e81",
+          "#3730a3",
+          "#4338ca",
+          "#4f46e5",
+          "#6366f1",
+          "#a5b4fc",
+          "#e0e7ff",
+          "#eef2ff"
+        ]
+      },
+      "indigo-50": {
+        "role": "primary",
+        "displayName": "Selection Wash",
+        "canonical": "#eef2ff",
+        "tonalRamp": [
+          "#312e81",
+          "#3730a3",
+          "#4338ca",
+          "#4f46e5",
+          "#6366f1",
+          "#a5b4fc",
+          "#e0e7ff",
+          "#eef2ff"
+        ]
+      },
+      "sky-500": {
+        "role": "secondary",
+        "displayName": "Access Point Sky",
+        "canonical": "#0ea5e9",
+        "tonalRamp": [
+          "#0c4a6e",
+          "#0369a1",
+          "#0284c7",
+          "#0ea5e9",
+          "#38bdf8",
+          "#7dd3fc",
+          "#e0f2fe",
+          "#f0f9ff"
+        ]
+      },
+      "emerald-500": {
+        "role": "secondary",
+        "displayName": "This Mac Emerald",
+        "canonical": "#10b981",
+        "tonalRamp": [
+          "#064e3b",
+          "#047857",
+          "#059669",
+          "#10b981",
+          "#34d399",
+          "#6ee7b7",
+          "#d1fae5",
+          "#ecfdf5"
+        ]
+      },
+      "amber-700": {
+        "role": "tertiary",
+        "displayName": "New Amber",
+        "canonical": "#b45309",
+        "tonalRamp": [
+          "#78350f",
+          "#92400e",
+          "#b45309",
+          "#d97706",
+          "#f59e0b",
+          "#fcd34d",
+          "#fde68a",
+          "#fffbeb"
+        ]
+      },
+      "amber-200": {
+        "role": "tertiary",
+        "displayName": "New Amber Border",
+        "canonical": "#fde68a",
+        "tonalRamp": [
+          "#78350f",
+          "#92400e",
+          "#b45309",
+          "#d97706",
+          "#f59e0b",
+          "#fcd34d",
+          "#fde68a",
+          "#fffbeb"
+        ]
+      },
+      "amber-50": {
+        "role": "tertiary",
+        "displayName": "New Amber Wash",
+        "canonical": "#fffbeb",
+        "tonalRamp": [
+          "#78350f",
+          "#92400e",
+          "#b45309",
+          "#d97706",
+          "#f59e0b",
+          "#fcd34d",
+          "#fde68a",
+          "#fffbeb"
+        ]
+      },
+      "rose-700": {
+        "role": "tertiary",
+        "displayName": "Alarm Rose",
+        "canonical": "#be123c",
+        "tonalRamp": [
+          "#881337",
+          "#be123c",
+          "#e11d48",
+          "#f43f5e",
+          "#fb7185",
+          "#fda4af",
+          "#fecdd3",
+          "#fff1f2"
+        ]
+      },
+      "rose-500": {
+        "role": "tertiary",
+        "displayName": "Ping Rose",
+        "canonical": "#f43f5e",
+        "tonalRamp": [
+          "#881337",
+          "#be123c",
+          "#e11d48",
+          "#f43f5e",
+          "#fb7185",
+          "#fda4af",
+          "#fecdd3",
+          "#fff1f2"
+        ]
+      },
+      "rose-200": {
+        "role": "tertiary",
+        "displayName": "Alarm Rose Border",
+        "canonical": "#fecdd3",
+        "tonalRamp": [
+          "#881337",
+          "#be123c",
+          "#e11d48",
+          "#f43f5e",
+          "#fb7185",
+          "#fda4af",
+          "#fecdd3",
+          "#fff1f2"
+        ]
+      },
+      "rose-50": {
+        "role": "tertiary",
+        "displayName": "Alarm Rose Wash",
+        "canonical": "#fff1f2",
+        "tonalRamp": [
+          "#881337",
+          "#be123c",
+          "#e11d48",
+          "#f43f5e",
+          "#fb7185",
+          "#fda4af",
+          "#fecdd3",
+          "#fff1f2"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "Card White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-50": {
+        "role": "neutral",
+        "displayName": "Page Slate",
+        "canonical": "#f8fafc",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-100": {
+        "role": "neutral",
+        "displayName": "Map Slate",
+        "canonical": "#f1f5f9",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-200": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#e2e8f0",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-300": {
+        "role": "neutral",
+        "displayName": "Strong Hairline",
+        "canonical": "#cbd5e1",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-400": {
+        "role": "neutral",
+        "displayName": "Line Slate",
+        "canonical": "#94a3b8",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-500": {
+        "role": "neutral",
+        "displayName": "Quiet Ink",
+        "canonical": "#64748b",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-600": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#475569",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-700": {
+        "role": "neutral",
+        "displayName": "Control Ink",
+        "canonical": "#334155",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "slate-900": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0f172a",
+        "tonalRamp": [
+          "#0f172a",
+          "#334155",
+          "#475569",
+          "#64748b",
+          "#94a3b8",
+          "#cbd5e1",
+          "#e2e8f0",
+          "#f1f5f9"
+        ]
+      },
+      "logo-violet": {
+        "role": "brand",
+        "displayName": "Logo Violet",
+        "canonical": "#7c3aed",
+        "tonalRamp": [
+          "#4c1d95",
+          "#5b21b6",
+          "#6d28d9",
+          "#7c3aed",
+          "#8b5cf6",
+          "#a78bfa",
+          "#ddd6fe",
+          "#f5f3ff"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The app name in the toolbar."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "The heading of the device list."
+      },
+      "title-small": {
+        "displayName": "Title Small",
+        "purpose": "Notice headings and the router's name on the map."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base text, inputs, options and the detail panel's empty state."
+      },
+      "body-strong": {
+        "displayName": "Body Strong",
+        "purpose": "Buttons, segments and device names in the list."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Status line, field labels, the detail facts, IP addresses and table cells."
+      },
+      "label-strong": {
+        "displayName": "Label Strong",
+        "purpose": "Names on map chips and table headers."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 1px 2px 0 rgb(15 23 42 / 0.05)",
+        "purpose": "All cards at rest."
+      },
+      {
+        "name": "chip",
+        "value": "0 1px 3px 0 rgb(15 23 42 / 0.1)",
+        "purpose": "Map chips, which float over the scene."
+      },
+      {
+        "name": "menu",
+        "value": "0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.1)",
+        "purpose": "The open pulldown, the only overlay."
+      },
+      {
+        "name": "focus-halo",
+        "value": "0 0 0 4px #e0e7ff",
+        "purpose": "Focused controls and the open pulldown trigger."
+      },
+      {
+        "name": "focus-inset",
+        "value": "inset 0 0 0 2px #a5b4fc",
+        "purpose": "Focus inside the table header, where an outer ring would clip."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "150ms ease-out",
+        "purpose": "Background, border and focus changes on controls, and the pulldown chevron."
+      },
+      {
+        "name": "busy-spin",
+        "value": "1s linear infinite",
+        "purpose": "The Scan icon while scanning. Off under reduced motion."
+      },
+      {
+        "name": "scan-turn",
+        "value": "2.4s per turn",
+        "purpose": "The arc passing over the disc during a scan. Off under reduced motion."
+      },
+      {
+        "name": "device-answer",
+        "value": "0.7s",
+        "purpose": "A device swelling and flushing indigo as the arc crosses it."
+      },
+      {
+        "name": "device-reveal",
+        "value": "0.55s",
+        "purpose": "A new device appearing on the map."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "map-hint",
+        "value": "1100px",
+        "purpose": "Below this width the map's drag hint drops out and the legend stays."
+      }
+    ],
+    "brandAssets": [
+      {
+        "name": "App icon",
+        "path": "assets/AppIcon.png",
+        "purpose": "1024px mark in Logo Violet on a white rounded square, for the Dock and menu bar."
+      },
+      {
+        "name": "App bundle icon",
+        "path": "assets/AppIcon.icns",
+        "purpose": "The icon the app bundle carries."
+      },
+      {
+        "name": "Mark",
+        "path": "assets/monkey-purple.svg",
+        "purpose": "The vector source of the mark, filled with Logo Violet."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one filled action in the window: Scan.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/></svg><span>Scan</span></button>",
+      "css": ".ds-btn-primary { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 12px; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out; min-width: 124px; border: 1px solid var(--indigo-600); border-radius: 10px; background: var(--indigo-600); color: #fff; } .ds-btn-primary:hover { border-color: var(--indigo-700); background: var(--indigo-700); } .ds-btn-primary:focus-visible { border-color: var(--indigo-300); outline: none; box-shadow: 0 0 0 4px var(--indigo-100); }"
+    },
+    {
+      "name": "Default Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Every other action, such as Export and Save.",
+      "html": "<button class=\"ds-btn\" type=\"button\">Export CSV…</button>",
+      "css": ".ds-btn { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 12px; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out; border: 1px solid var(--slate-200); border-radius: 10px; background: #fff; color: var(--slate-700); } .ds-btn:hover { border-color: var(--slate-300); background: var(--slate-50); } .ds-btn:focus-visible { border-color: var(--indigo-300); outline: none; box-shadow: 0 0 0 4px var(--indigo-100); }"
+    },
+    {
+      "name": "Segmented Switch",
+      "kind": "nav",
+      "refersTo": "segment",
+      "description": "Switches between Map and Table, and sets a device's role.",
+      "html": "<div class=\"ds-switch\" role=\"group\" aria-label=\"View\"><button type=\"button\" aria-pressed=\"true\">Map</button><button type=\"button\" aria-pressed=\"false\">Table</button></div>",
+      "css": ".ds-switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--slate-200); border-radius: 14px; background: #fff; } .ds-switch button { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; height: 28px; padding: 0 10px; border: 0; border-radius: 10px; background: none; color: var(--slate-600); font-size: 13px; font-weight: 500; cursor: pointer; transition: background-color 150ms ease-out, box-shadow 150ms ease-out; } .ds-switch button:hover { background: var(--slate-100); } .ds-switch button[aria-pressed=\"true\"] { background: var(--indigo-50); color: var(--indigo-700); } .ds-switch button:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--indigo-100); }"
+    },
+    {
+      "name": "Network Pulldown",
+      "kind": "custom",
+      "refersTo": "pulldown-trigger",
+      "description": "The custom network listbox, shown open.",
+      "html": "<div class=\"ds-pulldown\"><button class=\"ds-pulldown-trigger\" type=\"button\" aria-expanded=\"true\"><span>en0 (192.0.2.10)</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button><ul class=\"ds-pulldown-menu\" role=\"listbox\" aria-label=\"Network\"><li role=\"option\" aria-selected=\"true\"><span>en0 (192.0.2.10)</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></li><li role=\"option\" aria-selected=\"false\"><span>en1 (198.51.100.4)</span></li></ul></div>",
+      "css": ".ds-pulldown { position: relative; width: 232px; padding-bottom: 104px; } .ds-pulldown-trigger { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 12px; font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer; transition: background-color 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out; justify-content: space-between; width: 232px; border: 1px solid var(--indigo-300); border-radius: 14px; background: #fff; color: var(--slate-700); box-shadow: 0 0 0 4px var(--indigo-100); } .ds-pulldown-trigger svg { color: var(--slate-400); transform: rotate(180deg); } .ds-pulldown-menu { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; position: absolute; top: 42px; left: 0; width: 100%; margin: 0; padding: 6px 0; border: 1px solid var(--slate-200); border-radius: 14px; background: #fff; box-shadow: 0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.1); font-size: 13px; list-style: none; } .ds-pulldown-menu li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; color: var(--slate-600); cursor: pointer; } .ds-pulldown-menu li:hover { background: var(--slate-100); color: var(--slate-900); } .ds-pulldown-menu li[aria-selected=\"true\"] { color: var(--indigo-700); font-weight: 500; } .ds-pulldown-menu svg { color: var(--indigo-600); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "The device name field.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Name this device\" aria-label=\"Name\">",
+      "css": ".ds-input { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; height: 36px; padding: 0 12px; border: 1px solid var(--slate-200); border-radius: 14px; background: #fff; color: var(--slate-900); font-size: 13px; } .ds-input::placeholder { color: var(--slate-500); } .ds-input:focus-visible { border-color: var(--indigo-300); outline: none; box-shadow: 0 0 0 4px var(--indigo-100); }"
+    },
+    {
+      "name": "Device Panel",
+      "kind": "card",
+      "refersTo": "device-panel",
+      "description": "A card holding the device list, with rows at rest, unnamed and current.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-head\"><h2>Devices</h2><span>3 devices</span></div><button class=\"ds-row\" type=\"button\" aria-current=\"true\"><span class=\"ds-dot ds-dot-router\"></span><span class=\"ds-row-name\">Router</span><span class=\"ds-row-ip\">192.0.2.1</span></button><button class=\"ds-row\" type=\"button\"><span class=\"ds-dot ds-dot-ap\"></span><span class=\"ds-row-name\">Extender</span><span class=\"ds-row-ip\">192.0.2.5</span></button><button class=\"ds-row\" type=\"button\"><span class=\"ds-dot\"></span><span class=\"ds-row-name ds-row-unnamed\">Unknown device</span><span class=\"ds-row-ip\">192.0.2.24</span></button></section>",
+      "css": ".ds-panel { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; width: 340px; padding-bottom: 8px; border: 1px solid var(--slate-200); border-radius: 18px; background: #fff; box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.05); font-size: 13px; line-height: 1.45; } .ds-panel-head { display: flex; align-items: baseline; justify-content: space-between; padding: 14px 16px 8px; color: var(--slate-500); font-size: 12px; } .ds-panel-head h2 { margin: 0; color: var(--slate-900); font-size: 16px; font-weight: 600; letter-spacing: -0.02em; } .ds-row { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 1px 10px; align-items: center; width: calc(100% - 16px); margin: 0 8px; padding: 7px 8px; border: 0; border-radius: 10px; background: none; font-size: 13px; text-align: left; cursor: pointer; transition: background-color 150ms ease-out, box-shadow 150ms ease-out; } .ds-row:hover { background: var(--slate-100); } .ds-row:focus-visible { outline: none; box-shadow: 0 0 0 4px var(--indigo-100); } .ds-row[aria-current=\"true\"] { background: var(--indigo-50); } .ds-row[aria-current=\"true\"] .ds-row-name { color: var(--indigo-700); } .ds-row-name { color: var(--slate-900); font-weight: 500; } .ds-row-unnamed { color: var(--slate-600); font-weight: 400; } .ds-row-ip { grid-column: 2; color: var(--slate-500); font-size: 12px; } .ds-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--slate-600); } .ds-dot-router { background: var(--indigo-600); } .ds-dot-ap { background: var(--sky-500); }"
+    },
+    {
+      "name": "Map Chip",
+      "kind": "chip",
+      "refersTo": "map-chip",
+      "description": "The label beside a device on the map, with its New mark.",
+      "html": "<button class=\"ds-chip\" type=\"button\"><span class=\"ds-chip-name\">Printer</span><span class=\"ds-chip-ip\">192.0.2.24</span><span class=\"ds-new\">New</span></button>",
+      "css": ".ds-chip { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; display: inline-flex; flex-direction: column; max-width: 190px; padding: 4px 10px; border: 1px solid var(--slate-200); border-radius: 8px; background: #fff; box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.1); font-size: 12px; text-align: left; cursor: pointer; transition: border-color 150ms ease-out, box-shadow 150ms ease-out; } .ds-chip:hover { border-color: var(--slate-300); } .ds-chip:focus-visible { border-color: var(--indigo-300); outline: none; box-shadow: 0 0 0 4px var(--indigo-100); } .ds-chip-name { color: var(--slate-900); font-weight: 600; line-height: 1.3; } .ds-chip-ip { color: var(--slate-500); line-height: 1.3; } .ds-new { align-self: flex-start; margin-top: 2px; padding: 0 6px; border: 1px solid var(--amber-200); border-radius: 6px; background: var(--amber-50); color: var(--amber-700); font-weight: 500; }"
+    },
+    {
+      "name": "Notice",
+      "kind": "custom",
+      "refersTo": "notice",
+      "description": "The failure banner, with a command the user can select in one click.",
+      "html": "<div class=\"ds-notice\" role=\"alert\"><h2>Scanning needs administrator rights</h2><p>Quit this window and start the app from its folder with:</p><code>sudo .venv/bin/python main.py</code></div>",
+      "css": ".ds-notice { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; padding: 12px 16px; border: 1px solid var(--rose-200); border-radius: 14px; background: var(--rose-50); color: var(--rose-700); font-size: 13px; line-height: 1.45; } .ds-notice h2 { margin: 0 0 4px; font-size: 14px; font-weight: 600; letter-spacing: -0.02em; } .ds-notice p { margin: 0; } .ds-notice code { display: block; margin-top: 8px; padding: 6px 10px; border: 1px solid var(--rose-200); border-radius: 8px; background: #fff; color: var(--slate-900); font: inherit; font-size: 12px; user-select: all; }"
+    },
+    {
+      "name": "Device Table",
+      "kind": "custom",
+      "refersTo": "table-cell",
+      "description": "The dense sortable table, with a selected row and ping dots.",
+      "html": "<table class=\"ds-table\"><thead><tr><th>Name</th><th>Ping</th><th aria-sort=\"ascending\">IPv4 address</th></tr></thead><tbody><tr aria-selected=\"true\"><td class=\"ds-cell-name\">Router</td><td><span class=\"ds-ping ds-ping-up\" role=\"img\" aria-label=\"Answers ping\"></span></td><td>192.0.2.1</td></tr><tr><td class=\"ds-cell-name\">Printer</td><td><span class=\"ds-ping ds-ping-down\" role=\"img\" aria-label=\"No ping answer\"></span></td><td>192.0.2.24</td></tr></tbody></table>",
+      "css": ".ds-table { font-family: \"JetBrains Mono\", ui-monospace, Menlo, monospace; min-width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; font-size: 12px; } .ds-table th { height: 38px; padding: 0 12px; border-bottom: 1px solid var(--slate-200); color: var(--slate-600); font-weight: 600; text-align: left; } .ds-table td { height: 36px; padding: 0 12px; border-bottom: 1px solid var(--slate-100); color: var(--slate-700); } .ds-table tbody tr:hover td { background: var(--slate-50); } .ds-table tbody tr[aria-selected=\"true\"] td { background: var(--indigo-50); } .ds-table .ds-cell-name { color: var(--slate-900); font-weight: 500; } .ds-table tbody tr[aria-selected=\"true\"] .ds-cell-name { color: var(--indigo-700); } .ds-ping { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--slate-300); vertical-align: middle; } .ds-ping-up { background: var(--emerald-500); } .ds-ping-down { background: var(--rose-500); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Workbench",
+    "overview": "LAN Scanner is a tool for looking something up, then getting on with the day. It belongs to the user's ffa product family: a pale slate room, white cards with hairline borders, one indigo voice, and a single typeface doing every job. The chrome stays quiet so that the network itself, drawn as a real 3D arrangement around the router, is the only thing with presence.\n\nThe density is that of a small desktop utility rather than a web page. The window never scrolls as a whole: a white toolbar sits above two working cards that fill the rest of the height, text is 12 to 13px, and controls are 36px tall. Lists and the table scroll inside their own cards.\n\nThe system refuses a themed costume of any kind. The 3D map earns its place by stating facts: bearing comes from the last IP octet, height from how many addresses a device answers on, and colour from its role.",
+    "keyCharacteristics": [
+      "JetBrains Mono for all text, bundled so the app works offline.",
+      "Slate neutrals, with indigo reserved for action, focus, selection and the router.",
+      "White cards on a slate-50 page, separated by 1px borders and very soft shadows.",
+      "A radius scale of 6, 8, 10, 14 and 18px, with the outermost container roundest.",
+      "Light only."
+    ],
+    "rules": [
+      {
+        "name": "The Indigo Earns It Rule",
+        "body": "Indigo appears only on the primary action, on focus, on selection and on the router and scan. If nothing is being acted on or chosen, it is not indigo.",
+        "section": "colors"
+      },
+      {
+        "name": "The State Colour Rule",
+        "body": "Amber says a device is new. Rose says something failed or does not answer. Neither is ever decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Logo Is Not An Accent Rule",
+        "body": "Logo Violet belongs to the mark. Interface accents stay Working Indigo, even though the two are close.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "All text is JetBrains Mono, including the numerals drawn into the 3D scene. Hierarchy never comes from a second typeface.",
+        "section": "typography"
+      },
+      {
+        "name": "The Guess Reads Lighter Rule",
+        "body": "A name the user gave carries weight and full ink. A guessed or missing name is regular weight in Soft Ink, so a guess never looks like a fact.",
+        "section": "typography"
+      },
+      {
+        "name": "The 12px Floor Rule",
+        "body": "No interface text goes below 12px.",
+        "section": "typography"
+      },
+      {
+        "name": "The Lift Follows Distance Rule",
+        "body": "The further something floats above the page, the larger its shadow: card, then chip, then menu. Nothing else gets a lifting shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Nested Radius Rule",
+        "body": "A control is never rounder than the container that holds it.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do use exactly one filled Working Indigo button in a view.",
+      "Do mark selection the same way everywhere: Selection Wash (#eef2ff) with Deep Indigo (#4338ca) text.",
+      "Do give every focusable control the Focus Periwinkle border and 4px Focus Halo.",
+      "Do write labels in sentence case, and keep guessed names in the lighter style.",
+      "Do bundle every font and asset locally; the app must work offline.",
+      "Do use `assets/AppIcon.png` for the app's icon as supplied, and `assets/monkey-purple.svg` as the source of the mark.",
+      "Do let position, height and colour on the map state real facts from the scan."
+    ],
+    "donts": [
+      "Don't dress the app in a themed costume; it is a working tool in the ffa family.",
+      "Don't use a typeface other than JetBrains Mono.",
+      "Don't use amber or rose for anything but state.",
+      "Don't use Logo Violet (#7c3aed) as an interface accent.",
+      "Don't set Line Slate (#94a3b8) as text; it falls below reading contrast on white.",
+      "Don't add a corner radius outside the 6, 8, 10, 14 and 18px scale; full circles are for dots."
+    ]
+  }
+}

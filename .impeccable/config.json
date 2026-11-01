@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "web/index.html"
+        ],
+        "createdAt": "2026-11-01T09:20:45.986Z",
+        "reason": "agent decision: the map's WebGL canvas and label layer intentionally fill the card edge to edge; text chips have their own padding"
+      }
+    ]
+  }
+}

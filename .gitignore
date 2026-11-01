@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.DS_Store
+LAN Scanner.app/
+
+# Your own devices' MAC addresses and names
+names.json
+roles.json
+*.json.bad
+*.csv
+
+# Local design-tool state and screenshots
+.impeccable/*
+!.impeccable/config.json
+!.impeccable/design.json

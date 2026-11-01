@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>LAN Scanner</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="importmap">{"imports": {"three": "./vendor/three.module.js"}}</script>
+</head>
+<body>
+  <header class="toolbar">
+    <h1>LAN Scanner</h1>
+    <div class="pulldown" id="pulldown">
+      <button id="network" class="pulldown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Network. Opening this list refreshes and scans again.">
+        <span id="network-label">No network</span>
+        <svg class="icon chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <ul id="network-menu" class="pulldown-menu" role="listbox" aria-label="Network" tabindex="-1" hidden></ul>
+    </div>
+    <button id="scan" class="primary" type="button" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg><span id="scan-label">Scan</span></button>
+    <button id="export" type="button" disabled>Export CSV…</button>
+    <div class="view-switch" role="group" aria-label="View">
+      <button id="view-map" type="button" aria-pressed="true">Map</button>
+      <button id="view-table" type="button" aria-pressed="false">Table</button>
+    </div>
+    <p id="status" class="status" role="status">Ready</p>
+  </header>
+
+  <div id="notice" class="notice" role="alert" hidden>
+      <h2 id="notice-title"></h2>
+      <p id="notice-text"></p>
+      <code id="notice-command" hidden></code>
+  </div>
+
+  <main class="workspace">
+    <section id="chart" class="chart card" aria-label="3D map of the network">
+      <canvas id="sky"></canvas>
+      <svg id="leaders" class="leaders" aria-hidden="true"></svg>
+      <div id="labels" class="labels"></div>
+      <div id="chart-foot" class="chart-foot" hidden>
+        <ul class="legend" aria-label="Device colours">
+          <li><span class="dot router"></span>Router</li>
+          <li><span class="dot"></span>Device</li>
+          <li><span class="dot ap"></span>Access point</li>
+          <li><span class="dot mac"></span>This Mac</li>
+        </ul>
+        <p>Drag to turn, scroll to zoom</p>
+      </div>
+    </section>
+
+    <section id="table-view" class="table-view card" aria-label="Device table" hidden>
+      <table>
+        <thead><tr id="table-head"></tr></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </section>
+
+    <aside id="panel" class="panel card">
+      <div id="device-list" class="device-list">
+        <div class="list-head">
+          <h2>Devices</h2>
+          <span id="count"></span>
+        </div>
+        <ul id="devices" class="devices"></ul>
+      </div>
+
+      <section id="detail" class="detail" aria-live="polite" hidden>
+        <form id="rename">
+          <label for="name">Name</label>
+          <div class="name-row">
+            <input id="name" type="text" maxlength="60" autocomplete="off" placeholder="Name this device">
+            <button type="submit">Save</button>
+          </div>
+          <p id="rename-error" class="error" role="alert" hidden></p>
+        </form>
+        <dl>
+          <dt id="ips-label">IP</dt>
+          <dd id="d-ips"></dd>
+          <dt>MAC</dt>
+          <dd id="d-mac"></dd>
+          <dt>Hostname</dt>
+          <dd id="d-hostname"></dd>
+          <dt>IPv6</dt>
+          <dd id="d-ipv6"></dd>
+          <dt>Vendor</dt>
+          <dd id="d-vendor"></dd>
+          <dt id="role-text-label">Role</dt>
+          <dd id="d-role-text"></dd>
+        </dl>
+        <div id="role-field" class="role-field">
+          <span id="role-label">Role</span>
+          <div id="role-switch" class="view-switch" role="group" aria-labelledby="role-label">
+            <button type="button" data-role="">Automatic</button>
+            <button type="button" data-role="Access point">Access point</button>
+            <button type="button" data-role="Device">Device</button>
+          </div>
+          <p id="role-detected" class="role-detected"></p>
+        </div>
+      </section>
+      <p id="detail-empty" class="detail-empty" hidden>Select a device to see its details.</p>
+    </aside>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
