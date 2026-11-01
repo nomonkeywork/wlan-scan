@@ -26,7 +26,7 @@ const ui = {
   chart: $("chart"), canvas: $("sky"), labels: $("labels"), devices: $("devices"), count: $("count"),
   detail: $("detail"), detailEmpty: $("detail-empty"), name: $("name"), renameError: $("rename-error"),
   chartFoot: $("chart-foot"), tableView: $("table-view"), tableHead: $("table-head"), tableBody: $("table-body"),
-  viewMap: $("view-map"), viewTable: $("view-table"), deviceList: $("device-list"), panel: $("panel"), leaders: $("leaders"),
+  viewMap: $("view-map"), viewTable: $("view-table"), viewSpeed: $("view-speed"), speedView: $("speed-view"), viewWifi: $("view-wifi"), wifiView: $("wifi-view"), deviceList: $("device-list"), panel: $("panel"), leaders: $("leaders"),
 };
 
 const COLUMNS = [
@@ -825,19 +825,24 @@ function renderTable() {
 
 // The table is wide, so in that view the panel only appears for a selected device.
 function syncPanel() {
-  ui.panel.hidden = view === "table" && !selectedMac;
+  ui.panel.hidden = view === "speed" || view === "wifi" || (view === "table" && !selectedMac);
 }
 
 function setView(next) {
   view = next;
   const table = view === "table";
-  ui.chart.hidden = table;
+  ui.chart.hidden = view !== "map";
+  ui.speedView.hidden = view !== "speed";
+  ui.wifiView.hidden = view !== "wifi";
   ui.tableView.hidden = !table;
-  ui.deviceList.hidden = table;
+  ui.deviceList.hidden = view !== "map";
   syncPanel();
-  ui.viewMap.setAttribute("aria-pressed", String(!table));
+  ui.viewMap.setAttribute("aria-pressed", String(view === "map"));
+  ui.viewSpeed.setAttribute("aria-pressed", String(view === "speed"));
+  ui.viewWifi.setAttribute("aria-pressed", String(view === "wifi"));
   ui.viewTable.setAttribute("aria-pressed", String(table));
   if (table) renderTable();
+  if (view === "wifi" && !wifiScanned) runWifiScan();
   try {
     localStorage.setItem("lan-scanner-view", view);
   } catch {
@@ -855,12 +860,82 @@ function select(mac) {
   syncPanel();
 }
 
-function showNotice(title, text, command) {
+function showNotice(title, text) {
   $("notice-title").textContent = title;
   $("notice-text").textContent = text;
-  $("notice-command").textContent = command ?? "";
-  $("notice-command").hidden = !command;
   $("notice").hidden = false;
+}
+
+// ---------- Speed test ----------
+
+async function runSpeedTest() {
+  if (!api) return;
+  const start = $("speed-start");
+  const status = $("speed-status");
+  start.disabled = true;
+  start.textContent = "Testing…";
+  status.classList.remove("error");
+  status.textContent = "Measuring download, then upload. This takes about a minute.";
+  let result;
+  try {
+    result = await api.speed_test(currentInterface);
+  } catch (error) {
+    result = { error: String(error) };
+  }
+  start.disabled = false;
+  start.textContent = "Test again";
+  const failed = Boolean(result.error);
+  $("speed-download").textContent = failed ? "–" : result.download.toFixed(1);
+  $("speed-upload").textContent = failed ? "–" : result.upload.toFixed(1);
+  $("speed-ping").textContent = failed ? "–" : Math.round(result.ping);
+  status.classList.toggle("error", failed);
+  status.textContent = failed ? result.error : `Measured at ${new Date().toLocaleTimeString()} through ${result.interface}, against Apple's servers.`;
+}
+
+// ---------- WLAN ----------
+
+let wifiScanned = false;
+
+function renderWifi(networks) {
+  $("wifi-body").replaceChildren(...networks.map((network) => {
+    const row = document.createElement("tr");
+    const cells = [
+      network.ssid || "Name hidden",
+      `${network.signal} dBm`,
+      network.band,
+      network.channel,
+      network.secure ? "Secured" : "Open",
+      network.current ? "Connected" : network.known ? "Known" : "",
+    ];
+    for (const value of cells) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      row.append(cell);
+    }
+    return row;
+  }));
+}
+
+async function runWifiScan() {
+  if (!api) return;
+  wifiScanned = true;
+  const refresh = $("wifi-refresh");
+  const status = $("wifi-status");
+  refresh.disabled = true;
+  status.classList.remove("error");
+  status.textContent = "Looking for networks…";
+  let result;
+  try {
+    result = await api.wifi();
+  } catch (error) {
+    result = { error: String(error) };
+  }
+  refresh.disabled = false;
+  renderWifi(result.networks ?? []);
+  status.classList.toggle("error", Boolean(result.error));
+  status.textContent = result.error ?? (result.namesHidden
+    ? "macOS hides network names until you allow Location. Open System Settings, then Privacy & Security, then Location Services, turn on Freds LAN, and refresh."
+    : `${result.networks.length} networks in range`);
 }
 
 // ---------- Network pulldown ----------
@@ -991,15 +1066,7 @@ async function runScan() {
   } else if (result.error) {
     stopSweep();
     ui.status.textContent = "Scan failed";
-    if (result.needsRoot) {
-      showNotice(
-        "Scanning needs administrator rights",
-        "Quit this window and start the app from its folder with:",
-        "sudo .venv/bin/python main.py",
-      );
-    } else {
-      showNotice("The scan failed", result.error);
-    }
+    showNotice("The scan failed", result.error);
   } else {
     const macs = new Set(result.devices.map((d) => d.mac));
     if (knownMacs) for (const mac of macs) if (!knownMacs.has(mac)) newMacs.add(mac);
@@ -1060,6 +1127,10 @@ async function start(readyApi) {
   ui.scan.addEventListener("click", runScan);
   ui.viewMap.addEventListener("click", () => setView("map"));
   ui.viewTable.addEventListener("click", () => setView("table"));
+  ui.viewSpeed.addEventListener("click", () => setView("speed"));
+  ui.viewWifi.addEventListener("click", () => setView("wifi"));
+  $("speed-start").addEventListener("click", runSpeedTest);
+  $("wifi-refresh").addEventListener("click", runWifiScan);
   let savedView = null;
   try {
     savedView = localStorage.getItem("lan-scanner-view");

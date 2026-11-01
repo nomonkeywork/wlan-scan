@@ -1,4 +1,4 @@
-"""Run with: .venv/bin/python -m unittest -v  (no root or real network scan needed)"""
+"""Run with: .venv/bin/python -m unittest -v  (no real network scan needed)"""
 import csv
 import io
 import json
@@ -132,23 +132,69 @@ fd00:db8::1  0:0:5e:0:53:f  en0 23h S
         self.assertEqual(enriched[2][4:], ["Book", True, "fe80::1", "fd00::1"])
 
 
-class ScanHelper(unittest.TestCase):
-    def test_helper_answers_each_request_and_reports_errors(self):
-        results = [{"rows": [], "network": "n", "interface": "en0"}, RuntimeError("no network")]
-        replies = io.StringIO()
-        with mock.patch("main.scan", side_effect=results) as scan:
-            main.serve_scans(io.StringIO("en5\n\n"), replies)
-        self.assertEqual(scan.call_args_list, [mock.call("en5"), mock.call(None)])
-        lines = replies.getvalue().splitlines()
-        self.assertEqual(json.loads(lines[0])["interface"], "en0")
-        self.assertEqual(json.loads(lines[1]), {"error": "no network"})
+class ArpScan(unittest.TestCase):
+    ARP_OUTPUT = """? (192.168.1.1) at 0:0:5e:0:53:1 on en0 ifscope [ethernet]
+? (192.168.1.7) at (incomplete) on en0 ifscope [ethernet]
+? (192.168.1.255) at ff:ff:ff:ff:ff:ff on en0 ifscope [ethernet]
+? (224.0.0.251) at 1:0:5e:0:0:fb on en0 ifscope permanent [ethernet]
+"""
+    NETWORK = main.ipaddress.ip_network("192.168.1.0/24")
 
-    def test_window_side_asks_helper_and_survives_it_stopping(self):
-        requests = io.StringIO()
-        ask = main.helper_scanner(requests, io.StringIO('{"rows": []}\n'))
-        self.assertEqual(ask("en5"), {"rows": []})
-        self.assertEqual(requests.getvalue(), "en5\n")
-        self.assertIn("error", ask("en5"))
+    def run_scan(self, send_error=None):
+        with mock.patch("socket.socket") as sock, mock.patch("socket.if_nametoindex", return_value=4), \
+                mock.patch("time.sleep"), mock.patch("subprocess.run", return_value=mock.Mock(stdout=self.ARP_OUTPUT)):
+            sock.return_value.__enter__.return_value.sendto.side_effect = send_error
+            return main.arp_scan("en0", self.NETWORK)
+
+    def test_keeps_answering_hosts_with_full_macs(self):
+        self.assertEqual(self.run_scan(), {"192.168.1.1": "00:00:5e:00:53:01"})
+
+    def test_all_sends_failing_points_to_the_local_network_setting(self):
+        with self.assertRaisesRegex(RuntimeError, "Local Network"):
+            self.run_scan(send_error=OSError("No route to host"))
+
+
+class SpeedTest(unittest.TestCase):
+    def test_converts_to_megabits_on_the_chosen_interface(self):
+        output = '{"dl_throughput": 100000000, "ul_throughput": 20000000, "base_rtt": 31.5}'
+        with mock.patch("subprocess.run", return_value=mock.Mock(stdout=output)) as run:
+            self.assertEqual(main.speed_test("en5"), {"download": 100, "upload": 20, "ping": 31.5, "interface": "en5"})
+        self.assertIn("en5", run.call_args.args[0])
+
+    def test_unusable_output_becomes_a_message(self):
+        api = main.Api(lambda _: {})
+        for output in ("", '{"error_code": 1}'):
+            with mock.patch("main.find_interface", return_value=("en0",)), \
+                    mock.patch("subprocess.run", return_value=mock.Mock(stdout=output)):
+                self.assertIn("error", api.speed_test("en0"))
+
+
+class Wifi(unittest.TestCase):
+    @staticmethod
+    def network(ssid, secure=True):
+        network = mock.Mock()
+        network.ssid.return_value = ssid
+        network.rssiValue.return_value = -50
+        network.wlanChannel.return_value.channelNumber.return_value = 36
+        network.wlanChannel.return_value.channelBand.return_value = 2
+        network.supportsSecurity_.side_effect = lambda security: not secure and security == main.WIFI_SECURITY_NONE
+        return network
+
+    def test_row_marks_connected_known_and_open(self):
+        row = main.wifi_row(self.network("Home"), {"Home"}, "Home")
+        self.assertEqual(row, {
+            "ssid": "Home", "signal": -50, "channel": 36, "band": "5 GHz", "secure": True, "known": True, "current": True,
+        })
+        self.assertFalse(main.wifi_row(self.network("Cafe", secure=False), set(), "Home")["secure"])
+
+    def test_hidden_name_is_never_marked_connected(self):
+        row = main.wifi_row(self.network(None), set(), None)
+        self.assertEqual((row["ssid"], row["current"], row["known"]), ("", False, False))
+
+    def test_known_names_skip_the_heading(self):
+        output = "Preferred networks on en0:\n\tHome\n\tCafé-5G\n"
+        with mock.patch("subprocess.run", return_value=mock.Mock(stdout=output)):
+            self.assertEqual(main.known_wifi("en0"), {"Home", "Café-5G"})
 
 
 class Names(unittest.TestCase):
@@ -224,9 +270,8 @@ class Names(unittest.TestCase):
             self.assertIn("error", api.open_in_browser("https://evil.example"))
         browser.assert_called_once_with("http://192.168.1.97/")
 
-    def test_scan_error_reports_whether_root_is_the_fix(self):
-        api = main.Api(lambda _: {"error": "denied"}, needs_root=True)
-        self.assertEqual(api.scan("en0"), {"error": "denied", "needsRoot": True})
+    def test_scan_error_is_passed_to_the_page(self):
+        self.assertEqual(main.Api(lambda _: {"error": "denied"}).scan("en0"), {"error": "denied"})
 
 
 class Export(unittest.TestCase):

@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>LAN Scanner</title>
+  <title>Freds LAN</title>
   <link rel="stylesheet" href="styles.css">
   <script type="importmap">{"imports": {"three": "./vendor/three.module.js"}}</script>
 </head>
 <body>
   <header class="toolbar">
-    <h1>LAN Scanner</h1>
+    <h1>Freds LAN</h1>
     <div class="pulldown" id="pulldown">
       <button id="network" class="pulldown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Network. Opening this list refreshes and scans again.">
         <span id="network-label">No network</span>
@@ -21,6 +21,8 @@
     <div class="view-switch" role="group" aria-label="View">
       <button id="view-map" type="button" aria-pressed="true">Map</button>
       <button id="view-table" type="button" aria-pressed="false">Table</button>
+      <button id="view-speed" type="button" aria-pressed="false">Speedtest</button>
+      <button id="view-wifi" type="button" aria-pressed="false">WLAN</button>
     </div>
     <p id="status" class="status" role="status">Ready</p>
   </header>
@@ -28,7 +30,6 @@
   <div id="notice" class="notice" role="alert" hidden>
       <h2 id="notice-title"></h2>
       <p id="notice-text"></p>
-      <code id="notice-command" hidden></code>
   </div>
 
   <main class="workspace">
@@ -51,6 +52,27 @@
       <table>
         <thead><tr id="table-head"></tr></thead>
         <tbody id="table-body"></tbody>
+      </table>
+    </section>
+
+    <section id="speed-view" class="speed-view card" aria-label="Speed test" hidden>
+      <dl class="speed-results">
+        <div><dt>Download</dt><dd><span id="speed-download">–</span> <small>Mbit/s</small></dd></div>
+        <div><dt>Upload</dt><dd><span id="speed-upload">–</span> <small>Mbit/s</small></dd></div>
+        <div><dt>Ping</dt><dd><span id="speed-ping">–</span> <small>ms</small></dd></div>
+      </dl>
+      <button id="speed-start" class="primary" type="button">Start test</button>
+      <p id="speed-status" class="speed-status" role="status">Takes about a minute and sends test data over your internet connection to Apple's servers.</p>
+    </section>
+
+    <section id="wifi-view" class="table-view wifi-view card" aria-label="Available WLAN networks" hidden>
+      <div class="wifi-head">
+        <p id="wifi-status" class="speed-status" role="status"></p>
+        <button id="wifi-refresh" type="button">Refresh</button>
+      </div>
+      <table>
+        <thead><tr><th>Network</th><th>Signal</th><th>Band</th><th>Channel</th><th>Security</th><th>Status</th></tr></thead>
+        <tbody id="wifi-body"></tbody>
       </table>
     </section>
 

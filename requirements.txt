@@ -1,4 +1,5 @@
-scapy==2.8.0
 mac-vendor-lookup==0.1.15
 netifaces==0.11.0
 pywebview==6.2.1
+pyobjc-framework-CoreWLAN==13.0
+pyobjc-framework-CoreLocation==13.0

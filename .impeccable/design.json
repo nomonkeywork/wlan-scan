@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-11-01T09:18:54Z",
-  "title": "Design System: LAN Scanner",
+  "title": "Design System: Freds LAN",
   "extensions": {
     "colorMeta": {
       "indigo-600": {
@@ -565,7 +565,7 @@
   ],
   "narrative": {
     "northStar": "The Quiet Workbench",
-    "overview": "LAN Scanner is a tool for looking something up, then getting on with the day. It belongs to the user's ffa product family: a pale slate room, white cards with hairline borders, one indigo voice, and a single typeface doing every job. The chrome stays quiet so that the network itself, drawn as a real 3D arrangement around the router, is the only thing with presence.\n\nThe density is that of a small desktop utility rather than a web page. The window never scrolls as a whole: a white toolbar sits above two working cards that fill the rest of the height, text is 12 to 13px, and controls are 36px tall. Lists and the table scroll inside their own cards.\n\nThe system refuses a themed costume of any kind. The 3D map earns its place by stating facts: bearing comes from the last IP octet, height from how many addresses a device answers on, and colour from its role.",
+    "overview": "Freds LAN is a tool for looking something up, then getting on with the day. It belongs to the user's ffa product family: a pale slate room, white cards with hairline borders, one indigo voice, and a single typeface doing every job. The chrome stays quiet so that the network itself, drawn as a real 3D arrangement around the router, is the only thing with presence.\n\nThe density is that of a small desktop utility rather than a web page. The window never scrolls as a whole: a white toolbar sits above two working cards that fill the rest of the height, text is 12 to 13px, and controls are 36px tall. Lists and the table scroll inside their own cards.\n\nThe system refuses a themed costume of any kind. The 3D map earns its place by stating facts: bearing comes from the last IP octet, height from how many addresses a device answers on, and colour from its role.",
     "keyCharacteristics": [
       "JetBrains Mono for all text, bundled so the app works offline.",
       "Slate neutrals, with indigo reserved for action, focus, selection and the router.",

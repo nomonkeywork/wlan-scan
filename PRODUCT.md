@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Python app (`main.py`) showing a local HTML/WebGL page in a native macOS window through pywebview. Runs as root because ARP scanning needs raw sockets.
+Python app (`main.py`) showing a local HTML/WebGL page in a native macOS window through pywebview. Runs as the normal user: it reads devices from macOS's ARP table after sending to each address.
 
 ## Users
 
@@ -33,7 +33,9 @@ A Starlink router is the gateway, with TP-Link extenders on the same subnet. An 
 - CSV export and network interface selection. Opening the network list refreshes it and scans again.
 - 3D map and sortable table views. The table has one row per IP, with hostname (mDNS), ping and IPv6.
 - Role override by MAC in `roles.json`, and opening a device's page in the browser.
-- Must work offline. No assets loaded from the internet.
+- Speed test with macOS's `networkQuality`, on request only; the one feature that uses the internet.
+- List of Wi-Fi networks in range through CoreWLAN.
+- Everything else works offline. No assets loaded from the internet.
 - Roles and vendors are guesses from data and must not be presented as certain.
 
 ## Brand Commitments
@@ -48,4 +50,4 @@ Real scan results only. No sample devices may appear in the shipped app.
 
 - Device facts stay readable and one click away; the 3D scene serves them.
 - Show only what the scan found. An unknown device stays unknown until named.
-- Everything stays on this Mac.
+- Device data stays on this Mac.

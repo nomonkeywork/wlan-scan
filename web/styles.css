@@ -270,19 +270,6 @@ input::placeholder { color: var(--slate-500); }
 }
 .notice h2 { margin-bottom: 4px; font-size: 14px; }
 .notice p { overflow-wrap: anywhere; }
-.notice code {
-  display: block;
-  margin-top: 8px;
-  padding: 6px 10px;
-  border: 1px solid var(--rose-200);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--slate-900);
-  font: inherit;
-  font-size: 12px;
-  overflow-wrap: anywhere;
-  user-select: all;
-}
 
 .table-view { flex: 1; min-width: 0; overflow: auto; scrollbar-color: var(--slate-300) transparent; scrollbar-width: thin; }
 .table-view table { min-width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
@@ -338,6 +325,19 @@ input::placeholder { color: var(--slate-500); }
 
 .device-list { display: flex; flex: 1 0 132px; flex-direction: column; min-height: 0; }
 .device-list[hidden] + .detail { flex: 1; overflow-y: auto; border-top: 0; }
+.speed-view { flex: 1; min-width: 0; overflow: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 32px; text-align: center; }
+.speed-results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; max-width: 760px; margin: 0; }
+.speed-results div { padding: 8px 16px; border-left: 1px solid var(--slate-200); }
+.speed-results div:first-child { border-left: 0; }
+.speed-results dt { color: var(--slate-500); font-size: 12px; }
+.speed-results dd { margin: 4px 0 0; color: var(--slate-900); font-size: 40px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.speed-results small { color: var(--slate-500); font-size: 12px; font-weight: 400; }
+.speed-status { max-width: 60ch; margin: 0; color: var(--slate-600); font-size: 12px; }
+.speed-status.error { color: var(--rose-700); }
+.wifi-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; }
+.wifi-view table { width: 100%; }
+.wifi-view tbody tr { cursor: default; }
+
 .panel {
   display: flex;
   flex-direction: column;

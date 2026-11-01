@@ -1,7 +1,7 @@
 .venv/
 __pycache__/
 .DS_Store
-LAN Scanner.app/
+Freds LAN.app/
 
 # Your own devices' MAC addresses and names
 names.json

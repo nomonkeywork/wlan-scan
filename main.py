@@ -1,26 +1,28 @@
 #!/usr/bin/env python3
 """macOS LAN scanner: a 3D star chart of the devices on the local network.
 
-Run with: sudo .venv/bin/python main.py
+Run with: .venv/bin/python main.py
 
-Root is only used by a small helper that sends the ARP scan. The window itself
-is started as the normal user, so no web content ever runs as root.
+No root needed: sending to each address makes macOS do the ARP, and anyone can
+read the result from its ARP table.
 """
 import concurrent.futures
 import csv
 import ipaddress
 import json
 import os
-import pwd
+import re
 import socket
 import subprocess
 import sys
 import threading
+import time
 from pathlib import Path
 
 import netifaces
 from mac_vendor_lookup import MacLookup, VendorNotFoundError
 
+APP_NAME = "Freds LAN"
 PROJECT = Path(__file__).resolve().parent
 NAMES_FILE = PROJECT / "names.json"
 ROLES_FILE = PROJECT / "roles.json"
@@ -34,6 +36,15 @@ AP_VENDORS = (
     "grandstream", "tenda", "avm audiovisuelles",
 )
 MANAGEMENT_PORTS = (22, 80, 443)
+DISCARD_PORT = 9
+SPEED_TEST_TIMEOUT = 180
+WIFI_BANDS = {1: "2.4 GHz", 2: "5 GHz", 3: "6 GHz"}  # CoreWLAN's CWChannelBand values.
+WIFI_SECURITY_NONE = 0  # CoreWLAN's kCWSecurityNone.
+IP_BOUND_IF = 25  # macOS's socket option for sending through one interface. Python has no name for it.
+LOCAL_NETWORK_HELP = (
+    "macOS blocked access to the network. In System Settings, open Privacy & Security, then Local Network, "
+    f"turn on {APP_NAME}, and scan again."
+)
 CSV_HEADER = ("Name", "IP", "MAC", "Vendor", "Role", "Hostname", "Ping", "IPv6 local", "IPv6 global")
 PING_TEXT = {True: "up", False: "down", None: ""}
 
@@ -68,19 +79,34 @@ def scan_range(ip, netmask):
     return network if network.prefixlen >= 24 else ipaddress.ip_network(f"{ip}/24", strict=False)
 
 
-def arp_scan(iface, network):
-    """Return {ip: mac} for hosts answering ARP. Raises Scapy's permission error without root."""
-    # Imported here so the window process, which never scans, starts fast.
-    from scapy.all import ARP, Ether, conf, srp
+def full_mac(mac):
+    """macOS tools drop leading zeros (0:7d:3b...), but names are stored by the full form."""
+    return ":".join(part.zfill(2) for part in mac.split(":"))
 
-    # Optional: Homebrew's libpcap is used when installed, otherwise Scapy's native BPF.
-    if any(Path(prefix, "opt/libpcap").exists() for prefix in ("/opt/homebrew", "/usr/local")):
-        conf.use_pcap = True
-    answered, _ = srp(
-        Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=str(network)),
-        iface=iface, timeout=2, retry=1, verbose=False,
-    )
-    return {reply.psrc: reply.hwsrc for _, reply in answered}
+
+def arp_table(iface):
+    output = subprocess.run(["arp", "-an", "-i", iface], capture_output=True, text=True).stdout
+    return {ip: full_mac(mac) for ip, mac in re.findall(r"\((\S+)\) at ([0-9a-f:]+) on", output)}
+
+
+def arp_scan(iface, network):
+    """Return {ip: mac} for hosts answering ARP, which macOS asks when something is sent to them."""
+    hosts = [str(host) for host in network.hosts()]
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.setblocking(False)
+        sock.setsockopt(socket.IPPROTO_IP, IP_BOUND_IF, socket.if_nametoindex(iface))
+        for _ in range(2):  # A second round catches devices that missed the first.
+            sent = 0
+            for host in hosts:
+                try:
+                    sock.sendto(b"", (host, DISCARD_PORT))
+                    sent += 1
+                except OSError:
+                    pass
+            if not sent:
+                raise RuntimeError(LOCAL_NETWORK_HELP)
+            time.sleep(1.5)
+    return {ip: mac for ip, mac in arp_table(iface).items() if ip in hosts}
 
 
 def load_vendor_lookup():
@@ -153,7 +179,7 @@ def ipv6_neighbors():
         if len(parts) < 2 or ":" not in parts[1]:
             continue
         address = parts[0].split("%")[0]
-        mac = ":".join(part.zfill(2) for part in parts[1].split(":"))
+        mac = full_mac(parts[1])
         local, global_ = neighbors.setdefault(mac, ([], []))
         (local if address.startswith("fe80:") else global_).append(address)
     return neighbors
@@ -195,6 +221,52 @@ def scan(iface_name=None):
         vendor = vendor_name(lookup, host_mac)
         rows.append([host, host_mac, vendor, classify(host, host_mac, vendor, ip, gateway, hosts.get(gateway))])
     return {"rows": enrich(rows), "network": str(network), "interface": iface}
+
+
+def speed_test(iface):
+    """Measure with macOS's own tool, one direction at a time so each gets the full connection."""
+    output = subprocess.run(
+        ["networkQuality", "-c", "-s", "-I", iface], capture_output=True, text=True, timeout=SPEED_TEST_TIMEOUT,
+    ).stdout
+    data = json.loads(output)
+    return {
+        "download": data["dl_throughput"] / 1e6, "upload": data["ul_throughput"] / 1e6,
+        "ping": data["base_rtt"], "interface": iface,
+    }
+
+
+def known_wifi(iface):
+    """Return the Wi-Fi names this Mac has saved. macOS shows these without Location permission."""
+    output = subprocess.run(
+        ["networksetup", "-listpreferredwirelessnetworks", iface], capture_output=True, text=True,
+    ).stdout
+    return {line.strip() for line in output.splitlines()[1:]}
+
+
+def wifi_row(network, known, current):
+    name = network.ssid() or ""
+    channel = network.wlanChannel()
+    return {
+        "ssid": name, "signal": network.rssiValue(), "channel": channel.channelNumber(),
+        "band": WIFI_BANDS.get(channel.channelBand(), ""),
+        "secure": not network.supportsSecurity_(WIFI_SECURITY_NONE),
+        "known": name in known, "current": bool(name) and name == current,
+    }
+
+
+def wifi_networks():
+    """Return the Wi-Fi networks in range, strongest first."""
+    from CoreWLAN import CWWiFiClient
+
+    wifi = CWWiFiClient.sharedWiFiClient().interface()
+    if wifi is None:
+        raise RuntimeError("This Mac has no Wi-Fi interface.")
+    found, error = wifi.scanForNetworksWithName_error_(None, None)
+    if error:
+        raise RuntimeError(error.localizedDescription())
+    known = known_wifi(wifi.interfaceName())
+    rows = [wifi_row(network, known, wifi.ssid()) for network in found]
+    return sorted(rows, key=lambda row: -row["signal"])
 
 
 def group_devices(rows, names):
@@ -251,28 +323,7 @@ def save_names(names):
     save_map(NAMES_FILE, names)
 
 
-def serve_scans(requests, replies):
-    """Root helper loop: each line is an interface name, each reply one JSON result."""
-    for line in requests:
-        try:
-            result = scan(line.strip() or None)
-        except Exception as error:
-            result = {"error": str(error)}
-        replies.write(json.dumps(result) + "\n")
-        replies.flush()
-
-
-def helper_scanner(requests, replies):
-    """Return a function that asks the root helper for a scan over the given pipes."""
-    def ask(iface_name):
-        requests.write((iface_name or "") + "\n")
-        requests.flush()
-        reply = replies.readline()
-        return json.loads(reply) if reply else {"error": "The scan helper stopped."}
-    return ask
-
-
-def direct_scanner(iface_name):
+def scanner(iface_name):
     try:
         return scan(iface_name)
     except Exception as error:
@@ -282,9 +333,9 @@ def direct_scanner(iface_name):
 class Api:
     """Methods the page calls through pywebview. Underscore names stay hidden from it."""
 
-    def __init__(self, scanner, needs_root=False):
-        self._scanner = scanner
-        self._needs_root = needs_root
+    def __init__(self, scan_network):
+        self._scan_network = scan_network
+        self._location = None
         self._names = load_names()
         self._roles = load_map(ROLES_FILE)
         self._rows = []
@@ -296,11 +347,35 @@ class Api:
 
     def scan(self, iface_name=None):
         with self._lock:
-            result = self._scanner(iface_name)
+            result = self._scan_network(iface_name)
         if "error" in result:
-            return {"error": result["error"], "needsRoot": self._needs_root}
+            return {"error": result["error"]}
         self._rows = result["rows"]
         return {**self._listing(), "network": result["network"], "interface": result["interface"]}
+
+    def speed_test(self, iface_name=None):
+        try:
+            return speed_test(find_interface(iface_name)[0])
+        except (OSError, RuntimeError, ValueError, KeyError, subprocess.TimeoutExpired):
+            return {"error": "The speed test couldn't finish. Check your internet connection and try again."}
+
+    def _ask_for_location(self):
+        from CoreLocation import CLLocationManager
+
+        # Kept on self because macOS drops the question when the manager is released.
+        self._location = CLLocationManager.alloc().init()
+        self._location.requestWhenInUseAuthorization()
+
+    def wifi(self):
+        from PyObjCTools import AppHelper
+
+        if self._location is None:
+            AppHelper.callAfter(self._ask_for_location)
+        try:
+            networks = wifi_networks()
+        except (OSError, RuntimeError) as error:
+            return {"error": str(error)}
+        return {"networks": networks, "namesHidden": any(not network["ssid"] for network in networks)}
 
     def _rows_with_roles(self):
         return [
@@ -380,56 +455,28 @@ def set_app_identity():
     from AppKit import NSApplication, NSImage
     from Foundation import NSBundle
 
-    NSBundle.mainBundle().infoDictionary()["CFBundleName"] = "LAN Scanner"
+    NSBundle.mainBundle().infoDictionary()["CFBundleName"] = APP_NAME
     icon = NSImage.alloc().initWithContentsOfFile_(str(PROJECT / "assets" / "AppIcon.png"))
     NSApplication.sharedApplication().setApplicationIconImage_(icon)
 
 
-def run_window(scanner, needs_root=False):
+def run_window():
     import webview
 
     set_app_identity()
-    api = Api(scanner, needs_root)
+    api = Api(scanner)
     api._window = webview.create_window(
-        "LAN Scanner", str(PROJECT / "web" / "index.html"), js_api=api,
+        APP_NAME, str(PROJECT / "web" / "index.html"), js_api=api,
         width=1280, height=820, min_size=(960, 620), background_color="#f8fafc",
     )
     webview.start(http_server=True)
 
 
-def run_as_root():
-    """Stay root only for scanning and start the window as the real user."""
-    uid = int(os.environ.get("SUDO_UID", Path(__file__).stat().st_uid))
-    if uid == 0:
-        sys.exit("Start this from your normal account with sudo, not from a root shell.")
-    user = pwd.getpwuid(uid)
-    env = {key: value for key, value in os.environ.items() if not key.startswith("SUDO_")}
-    env.update(HOME=user.pw_dir, USER=user.pw_name, LOGNAME=user.pw_name)
-
-    request_read, request_write = os.pipe()
-    reply_read, reply_write = os.pipe()
-    window = subprocess.Popen(
-        [sys.executable, str(Path(__file__).resolve()), "--window", str(request_write), str(reply_read)],
-        user=uid, group=user.pw_gid, extra_groups=os.getgrouplist(user.pw_name, user.pw_gid), env=env,
-        pass_fds=(request_write, reply_read), stdin=subprocess.DEVNULL,
-    )
-    os.close(request_write)
-    os.close(reply_read)
-    with os.fdopen(request_read) as requests, os.fdopen(reply_write, "w") as replies:
-        serve_scans(requests, replies)
-    sys.exit(window.wait())
-
-
 def main():
-    if sys.argv[1:2] == ["--window"]:
-        requests = os.fdopen(int(sys.argv[2]), "w")
-        replies = os.fdopen(int(sys.argv[3]))
-        run_window(helper_scanner(requests, replies))
-    elif os.geteuid() == 0:
-        run_as_root()
-    else:
-        # Not a hard stop: ChmodBPF (installed with Wireshark) lets non-root users capture.
-        run_window(direct_scanner, needs_root=True)
+    # The window shows web content, which must never run as root.
+    if os.geteuid() == 0:
+        sys.exit("Start this without sudo. It no longer needs root.")
+    run_window()
 
 
 if __name__ == "__main__":

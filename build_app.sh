@@ -1,26 +1,49 @@
 #!/bin/sh
-# Builds "LAN Scanner.app" and installs it in ~/Applications. It asks for an admin password
-# and runs main.py, which keeps only the scan helper as root.
-# The project path is stored in the app, so rebuild after moving this folder.
-set -e
+# Builds "Freds LAN.app" in ~/Applications. It runs main.py from this folder through
+# the venv, so rebuild after moving this folder.
+set -eu
 cd "$(dirname "$0")"
 dir=$(pwd)
-app="LAN Scanner.app"
-rm -rf "$app"
-osacompile -o "$app" -e "do shell script quoted form of \"$dir/.venv/bin/python\" & \" \" & quoted form of \"$dir/main.py\" with administrator privileges"
+app="Freds LAN.app"
+rm -rf "./$app"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+cp assets/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 
-cp assets/AppIcon.icns "$app/Contents/Resources/applet.icns"
-rm -f "$app/Contents/Resources/Assets.car"
-plist="$app/Contents/Info.plist"
-/usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" "$plist" 2>/dev/null || true
-/usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string work.nomonkey.lanscanner" "$plist" 2>/dev/null || true
-/usr/libexec/PlistBuddy -c "Set :CFBundleName LAN Scanner" "$plist" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleName string LAN Scanner" "$plist"
-# This launcher only starts the real window, which has its own Dock icon.
-/usr/libexec/PlistBuddy -c "Add :LSUIElement bool true" "$plist"
+cat > "$app/Contents/Info.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleExecutable</key><string>Freds LAN</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>CFBundleIdentifier</key><string>work.nomonkey.fredslan</string>
+  <key>CFBundleName</key><string>Freds LAN</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSLocalNetworkUsageDescription</key><string>Freds LAN scans your network to show the devices on it.</string>
+  <key>NSLocationWhenInUseUsageDescription</key><string>macOS only shows Wi-Fi network names to apps allowed to use Location. Freds LAN doesn't use your location.</string>
+</dict></plist>
+PLIST
+
+# The window runs this Python so the Dock shows this app instead of Python.app.
+# It links through Homebrew's opt path so it survives Python patch upgrades.
+base=$(.venv/bin/python -c 'import sys; print(sys.base_prefix)')
+python="$app/Contents/MacOS/Freds LAN Python"
+cp "$base/Resources/Python.app/Contents/MacOS/Python" "$python"
+linked=$(otool -L "$python" | awk '/Python.framework/ {print $1}')
+install_name_tool -change "$linked" "$(printf %s "$linked" | sed -E 's#Cellar/(python@[^/]+)/[^/]+#opt/\1#')" "$python" 2>/dev/null
+
+launcher="$app/Contents/MacOS/Freds LAN"
+{
+  echo '#!/bin/sh'
+  echo '# __PYVENV_LAUNCHER__ makes the bundled Python use the venv packages.'
+  echo "export __PYVENV_LAUNCHER__=\"$dir/.venv/bin/python\""
+  echo "exec \"\$(dirname \"\$0\")/Freds LAN Python\" \"$dir/main.py\""
+} > "$launcher"
+chmod +x "$launcher"
 codesign --force --deep --sign - "$app"
 
 mkdir -p "$HOME/Applications"
 rm -rf "$HOME/Applications/$app"
-ditto "$app" "$HOME/Applications/$app"
+mv "$app" "$HOME/Applications/$app"
 touch "$HOME/Applications/$app"
 echo "Installed: $HOME/Applications/$app"

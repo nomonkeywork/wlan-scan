@@ -1,5 +1,5 @@
 ---
-name: LAN Scanner
+name: Freds LAN
 description: A calm slate and indigo working tool that shows the home network as a 3D map around the router.
 colors:
   indigo-600: "#4f46e5"
@@ -187,13 +187,13 @@ components:
     height: "36px"
 ---
 
-# Design System: LAN Scanner
+# Design System: Freds LAN
 
 ## Overview
 
 **Creative North Star: "The Quiet Workbench"**
 
-LAN Scanner is a tool for looking something up, then getting on with the day. It belongs to the user's ffa product family: a pale slate room, white cards with hairline borders, one indigo voice, and a single typeface doing every job. The chrome stays quiet so that the network itself, drawn as a real 3D arrangement around the router, is the only thing with presence.
+Freds LAN is a tool for looking something up, then getting on with the day. It belongs to the user's ffa product family: a pale slate room, white cards with hairline borders, one indigo voice, and a single typeface doing every job. The chrome stays quiet so that the network itself, drawn as a real 3D arrangement around the router, is the only thing with presence.
 
 The density is that of a small desktop utility rather than a web page. The window never scrolls as a whole: a white toolbar sits above two working cards that fill the rest of the height, text is 12 to 13px, and controls are 36px tall. Lists and the table scroll inside their own cards.
 
