@@ -11,8 +11,11 @@ import csv
 import ipaddress
 import json
 import os
+import pty
 import re
+import select
 import socket
+import statistics
 import subprocess
 import sys
 import threading
@@ -37,7 +40,9 @@ AP_VENDORS = (
 )
 MANAGEMENT_PORTS = (22, 80, 443)
 DISCARD_PORT = 9
-SPEED_TEST_TIMEOUT = 180
+SPEED_SILENCE_TIMEOUT = 30
+SPEED_MAX_SECONDS = "60"
+PING_SAMPLES = 8
 WIFI_BANDS = {1: "2.4 GHz", 2: "5 GHz", 3: "6 GHz"}  # CoreWLAN's CWChannelBand values.
 WIFI_SECURITY_NONE = 0  # CoreWLAN's kCWSecurityNone.
 IP_BOUND_IF = 25  # macOS's socket option for sending through one interface. Python has no name for it.
@@ -223,16 +228,62 @@ def scan(iface_name=None):
     return {"rows": enrich(rows), "network": str(network), "interface": iface}
 
 
-def speed_test(iface):
-    """Measure with macOS's own tool, one direction at a time so each gets the full connection."""
-    output = subprocess.run(
-        ["networkQuality", "-c", "-s", "-I", iface], capture_output=True, text=True, timeout=SPEED_TEST_TIMEOUT,
-    ).stdout
-    data = json.loads(output)
-    return {
-        "download": data["dl_throughput"] / 1e6, "upload": data["ul_throughput"] / 1e6,
-        "ping": data["base_rtt"], "interface": iface,
-    }
+def read_capacity(command, label, report):
+    """Run networkQuality in a terminal, the only place it prints live speeds, and return its final figure."""
+    master, slave = pty.openpty()
+    process = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=slave, stderr=slave)
+    os.close(slave)
+    recent = ""
+    capacity = None
+    last_output = time.monotonic()
+    try:
+        while time.monotonic() - last_output < SPEED_SILENCE_TIMEOUT:
+            if not select.select([master], [], [], 1)[0]:
+                if process.poll() is not None:
+                    break
+                continue
+            try:
+                chunk = os.read(master, 4096)
+            except OSError:  # The terminal closes when the tool exits.
+                break
+            if not chunk:
+                break
+            last_output = time.monotonic()
+            # A number can be split across two reads, so keep the end of the previous one.
+            recent = recent[-200:] + chunk.decode(errors="ignore")
+            live = re.findall(rf"{label}: ([\d.]+) Mbps", recent)
+            if live:
+                report(float(live[-1]))
+            final = re.search(rf"{label} capacity: ([\d.]+) Mbps", recent)
+            if final:
+                capacity = float(final[1])
+    finally:
+        process.kill()
+        process.wait()
+        os.close(master)
+    if capacity is None:
+        raise RuntimeError("networkQuality gave no result")
+    return capacity
+
+
+def download_test(iface, report):
+    return read_capacity(["networkQuality", "-u", "-M", SPEED_MAX_SECONDS, "-I", iface], "Downlink", report)
+
+
+def upload_test(iface, report):
+    return read_capacity(["networkQuality", "-d", "-M", SPEED_MAX_SECONDS, "-I", iface], "Uplink", report)
+
+
+def ping_test(iface, report):
+    """Sample idle latency without loading the connection. The median ignores one slow reply."""
+    samples = []
+    for _ in range(PING_SAMPLES):
+        output = subprocess.run(
+            ["networkQuality", "-u", "-d", "-c", "-I", iface], capture_output=True, text=True, timeout=15,
+        ).stdout
+        samples.append(json.loads(output)["base_rtt"])
+        report(samples[-1])
+    return statistics.median(samples)
 
 
 def known_wifi(iface):
@@ -267,6 +318,9 @@ def wifi_networks():
     known = known_wifi(wifi.interfaceName())
     rows = [wifi_row(network, known, wifi.ssid()) for network in found]
     return sorted(rows, key=lambda row: -row["signal"])
+
+
+SPEED_TESTS = {"download": download_test, "upload": upload_test, "ping": ping_test}
 
 
 def group_devices(rows, names):
@@ -336,6 +390,7 @@ class Api:
     def __init__(self, scan_network):
         self._scan_network = scan_network
         self._location = None
+        self._speed_live = None
         self._names = load_names()
         self._roles = load_map(ROLES_FILE)
         self._rows = []
@@ -353,11 +408,22 @@ class Api:
         self._rows = result["rows"]
         return {**self._listing(), "network": result["network"], "interface": result["interface"]}
 
-    def speed_test(self, iface_name=None):
+    def speed_test(self, test, iface_name=None):
+        if test not in SPEED_TESTS:
+            return {"error": f"Unknown test: {test}"}
+        self._speed_live = {"count": 0, "value": 0}
+
+        def report(value):
+            self._speed_live = {"count": self._speed_live["count"] + 1, "value": value}
+
         try:
-            return speed_test(find_interface(iface_name)[0])
+            iface = find_interface(iface_name)[0]
+            return {"value": SPEED_TESTS[test](iface, report), "interface": iface}
         except (OSError, RuntimeError, ValueError, KeyError, subprocess.TimeoutExpired):
             return {"error": "The speed test couldn't finish. Check your internet connection and try again."}
+
+    def speed_live(self):
+        return self._speed_live
 
     def _ask_for_location(self):
         from CoreLocation import CLLocationManager

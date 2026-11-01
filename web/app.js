@@ -868,28 +868,89 @@ function showNotice(title, text) {
 
 // ---------- Speed test ----------
 
-async function runSpeedTest() {
-  if (!api) return;
-  const start = $("speed-start");
+const SPEED_SCALES = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
+const PING_SCALES = [50, 100, 200, 500, 1000, 2000, 5000];
+const speed = { target: 0, shown: 0, scale: 100, shownScale: 100, samples: [], running: false, frame: 0, scales: SPEED_SCALES, unit: "Mbit/s" };
+
+function drawSpeed() {
+  // Ease towards the newest value so the 4 updates a second read as movement.
+  const ease = reducedMotion ? 1 : 0.14;
+  speed.shown += (speed.target - speed.shown) * ease;
+  speed.shownScale += (speed.scale - speed.shownScale) * ease;
+  const value = speed.shown;
+  $("gauge-value").textContent = speed.unit === "ms" || value >= 100 ? Math.round(value) : value.toFixed(1);
+  $("gauge-arc").style.strokeDashoffset = 100 - Math.min(100, (value / speed.shownScale) * 100);
+  const last = Math.max(speed.samples.length - 1, 1);
+  $("speed-trace").setAttribute("points", speed.samples
+    .map((sample, index) => `${(index / last) * 480},${58 - Math.min(1, sample / speed.shownScale) * 56}`).join(" "));
+  const settled = Math.abs(speed.target - speed.shown) < 0.01 && Math.abs(speed.scale - speed.shownScale) < 0.01;
+  speed.frame = speed.running || !settled ? requestAnimationFrame(drawSpeed) : 0;
+}
+
+function showSpeedSample(value) {
+  speed.target = value;
+  speed.samples.push(value);
+  const peak = Math.max(...speed.samples);
+  speed.scale = speed.scales.find((scale) => scale >= peak * 1.1) ?? speed.scales.at(-1);
+  $("gauge-max").textContent = speed.scale;
+  if (!speed.frame) speed.frame = requestAnimationFrame(drawSpeed);
+}
+
+async function runSpeedTest(button) {
+  if (!api || speed.running) return;
+  const test = button.dataset.test;
+  const buttons = [...document.querySelectorAll(".speed-button")];
   const status = $("speed-status");
-  start.disabled = true;
-  start.textContent = "Testing…";
+  const unit = test === "ping" ? "ms" : "Mbit/s";
+  Object.assign(speed, { target: 0, shown: 0, samples: [], running: true, unit, scales: test === "ping" ? PING_SCALES : SPEED_SCALES });
+  speed.scale = speed.shownScale = speed.scales[2];
+  $("gauge-unit").textContent = unit;
+  $("gauge-max").textContent = speed.scale;
+  buttons.forEach((other) => { other.disabled = true; });
+  button.setAttribute("aria-busy", "true");
   status.classList.remove("error");
-  status.textContent = "Measuring download, then upload. This takes about a minute.";
+  status.textContent = `Measuring ${button.firstElementChild.textContent}…`;
+  if (!speed.frame) speed.frame = requestAnimationFrame(drawSpeed);
+
+  let lastSample = null;
+  let polling = false;
+  const poll = setInterval(async () => {
+    if (polling) return;
+    polling = true;
+    try {
+      const live = await api.speed_live();
+      if (speed.running && live) {
+        if (live.count !== lastSample) showSpeedSample(live.value);
+        lastSample = live.count;
+      }
+    } catch {
+      // A missed reading only skips one step of the animation.
+    }
+    polling = false;
+  }, 250);
+
   let result;
   try {
-    result = await api.speed_test(currentInterface);
+    result = await api.speed_test(test, currentInterface);
   } catch (error) {
     result = { error: String(error) };
   }
-  start.disabled = false;
-  start.textContent = "Test again";
-  const failed = Boolean(result.error);
-  $("speed-download").textContent = failed ? "–" : result.download.toFixed(1);
-  $("speed-upload").textContent = failed ? "–" : result.upload.toFixed(1);
-  $("speed-ping").textContent = failed ? "–" : Math.round(result.ping);
-  status.classList.toggle("error", failed);
-  status.textContent = failed ? result.error : `Measured at ${new Date().toLocaleTimeString()} through ${result.interface}, against Apple's servers.`;
+  clearInterval(poll);
+  speed.running = false;
+  buttons.forEach((other) => { other.disabled = false; });
+  button.removeAttribute("aria-busy");
+  status.classList.toggle("error", Boolean(result.error));
+  if (result.error) {
+    speed.target = 0;
+    status.textContent = result.error;
+  } else {
+    const shown = test === "ping" ? Math.round(result.value) : result.value.toFixed(1);
+    // The final figure must read exactly, not stop part way through the easing.
+    speed.target = speed.shown = result.value;
+    $(`speed-${test}`).textContent = `${shown} ${unit}`;
+    status.textContent = `${button.firstElementChild.textContent}: ${shown} ${unit}, measured at ${new Date().toLocaleTimeString()} through ${result.interface}, against Apple's servers.`;
+  }
+  if (!speed.frame) speed.frame = requestAnimationFrame(drawSpeed);
 }
 
 // ---------- WLAN ----------
@@ -1129,7 +1190,7 @@ async function start(readyApi) {
   ui.viewTable.addEventListener("click", () => setView("table"));
   ui.viewSpeed.addEventListener("click", () => setView("speed"));
   ui.viewWifi.addEventListener("click", () => setView("wifi"));
-  $("speed-start").addEventListener("click", runSpeedTest);
+  for (const button of document.querySelectorAll(".speed-button")) button.addEventListener("click", () => runSpeedTest(button));
   $("wifi-refresh").addEventListener("click", runWifiScan);
   let savedView = null;
   try {

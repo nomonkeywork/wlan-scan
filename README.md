@@ -54,7 +54,7 @@ The icon beside an IP, in the details and in the table, opens `http://<ip>/` in 
 
 ### Speedtest
 
-**Start test** measures download, upload and ping with `networkQuality`, which is built into macOS. It takes about a minute and sends test data over your internet connection to Apple's servers. Results aren't saved.
+Press **Downstream**, **Upstream** or **Ping** to run that test. The gauge and the line below it follow the current speed while it measures, and each button keeps its last result. The tests use `networkQuality`, which is built into macOS, and send test data over your internet connection to Apple's servers. Downstream and Upstream take up to a minute and Ping a few seconds. Results aren't saved.
 
 ### WLAN
 
@@ -77,7 +77,7 @@ This creates `Freds LAN.app` in `~/Applications`, so Spotlight can find it and y
 
 ## Offline use
 
-The speed test is the only feature that uses the internet, and only when you start it. three.js and the JetBrains Mono font (SIL Open Font License) are bundled in `web/vendor`, and vendor names come from the list bundled with `mac-vendor-lookup`.
+The speed tests are the only feature that uses the internet, and only when you start one. three.js and the JetBrains Mono font (SIL Open Font License) are bundled in `web/vendor`, and vendor names come from the list bundled with `mac-vendor-lookup`.
 
 ## Tests
 

@@ -56,13 +56,22 @@
     </section>
 
     <section id="speed-view" class="speed-view card" aria-label="Speed test" hidden>
-      <dl class="speed-results">
-        <div><dt>Download</dt><dd><span id="speed-download">–</span> <small>Mbit/s</small></dd></div>
-        <div><dt>Upload</dt><dd><span id="speed-upload">–</span> <small>Mbit/s</small></dd></div>
-        <div><dt>Ping</dt><dd><span id="speed-ping">–</span> <small>ms</small></dd></div>
-      </dl>
-      <button id="speed-start" class="primary" type="button">Start test</button>
-      <p id="speed-status" class="speed-status" role="status">Takes about a minute and sends test data over your internet connection to Apple's servers.</p>
+      <div class="gauge" aria-hidden="true">
+        <svg viewBox="0 0 240 128">
+          <path class="gauge-track" d="M 20 120 A 100 100 0 0 1 220 120" pathLength="100"/>
+          <path id="gauge-arc" class="gauge-arc" d="M 20 120 A 100 100 0 0 1 220 120" pathLength="100"/>
+        </svg>
+        <div class="gauge-reading"><strong id="gauge-value">–</strong><small id="gauge-unit">Mbit/s</small></div>
+        <span class="gauge-min">0</span>
+        <span id="gauge-max" class="gauge-max"></span>
+      </div>
+      <svg class="speed-trace" viewBox="0 0 480 60" preserveAspectRatio="none" aria-hidden="true"><polyline id="speed-trace"/></svg>
+      <div class="speed-buttons" role="group" aria-label="Start a test">
+        <button type="button" class="speed-button" data-test="download"><span>Downstream</span><strong id="speed-download">–</strong></button>
+        <button type="button" class="speed-button" data-test="upload"><span>Upstream</span><strong id="speed-upload">–</strong></button>
+        <button type="button" class="speed-button" data-test="ping"><span>Ping</span><strong id="speed-ping">–</strong></button>
+      </div>
+      <p id="speed-status" class="speed-status" role="status">Choose a test. Downstream and Upstream take up to a minute and send test data over your internet connection to Apple's servers.</p>
     </section>
 
     <section id="wifi-view" class="table-view wifi-view card" aria-label="Available WLAN networks" hidden>

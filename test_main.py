@@ -155,18 +155,42 @@ class ArpScan(unittest.TestCase):
 
 
 class SpeedTest(unittest.TestCase):
-    def test_converts_to_megabits_on_the_chosen_interface(self):
-        output = '{"dl_throughput": 100000000, "ul_throughput": 20000000, "base_rtt": 31.5}'
-        with mock.patch("subprocess.run", return_value=mock.Mock(stdout=output)) as run:
-            self.assertEqual(main.speed_test("en5"), {"download": 100, "upload": 20, "ping": 31.5, "interface": "en5"})
-        self.assertIn("en5", run.call_args.args[0])
+    def test_reports_live_speeds_and_returns_the_final_figure(self):
+        script = (
+            r"printf '\r\033[2K\rDownlink: 12.5 Mbps, 0 RPM - Uplink: 0.000 Mbps, 0 RPM'; "
+            r"printf '\r\033[2K\rDownlink: 40.0 Mbps, 9 RPM - Uplink: 0.000 Mbps, 0 RPM'; "
+            r"printf '\r\033[2K==== SUMMARY ====\r\nDownlink capacity: 38.2 Mbps\r\n'"
+        )
+        seen = []
+        self.assertEqual(main.read_capacity(["sh", "-c", script], "Downlink", seen.append), 38.2)
+        self.assertIn(40.0, seen)
+        self.assertEqual(seen[-1], 40.0)
 
-    def test_unusable_output_becomes_a_message(self):
+    def test_no_final_figure_is_an_error(self):
+        with self.assertRaises(RuntimeError):
+            main.read_capacity(["sh", "-c", "echo offline"], "Downlink", lambda _: None)
+
+    def test_ping_reports_each_sample_and_returns_the_median(self):
+        outputs = iter(['{"base_rtt": %d}' % value for value in (50, 500, 60, 55, 52, 58, 57, 53)])
+        seen = []
+        with mock.patch("subprocess.run", side_effect=lambda *_, **__: mock.Mock(stdout=next(outputs))):
+            self.assertEqual(main.ping_test("en5", seen.append), 56)
+        self.assertEqual(len(seen), main.PING_SAMPLES)
+
+    def test_page_can_only_start_known_tests_and_failures_become_messages(self):
         api = main.Api(lambda _: {})
-        for output in ("", '{"error_code": 1}'):
-            with mock.patch("main.find_interface", return_value=("en0",)), \
-                    mock.patch("subprocess.run", return_value=mock.Mock(stdout=output)):
-                self.assertIn("error", api.speed_test("en0"))
+        self.assertIn("error", api.speed_test("reboot"))
+        with mock.patch("main.find_interface", return_value=("en0",)), \
+                mock.patch("subprocess.run", return_value=mock.Mock(stdout="")):
+            self.assertIn("error", api.speed_test("ping", "en0"))
+
+    def test_live_reading_counts_samples(self):
+        api = main.Api(lambda _: {})
+        self.assertIsNone(api.speed_live())
+        with mock.patch.dict(main.SPEED_TESTS, {"ping": lambda _, report: report(7) or 7}), \
+                mock.patch("main.find_interface", return_value=("en0",)):
+            self.assertEqual(api.speed_test("ping"), {"value": 7, "interface": "en0"})
+        self.assertEqual(api.speed_live(), {"count": 1, "value": 7})
 
 
 class Wifi(unittest.TestCase):
